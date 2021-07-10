@@ -43,13 +43,12 @@ in
     alias h='history'
     alias e='exit'
     alias rf='rm -rf'
-    alias la='ls -a'
     alias s='sudo'
   '';
 
   environment.systemPackages = with pkgs; [
     # Test unstable chanel
-    #unstable.hello
+    unstable.hello
 
     # Basic
     git
@@ -65,21 +64,16 @@ in
     # Cryptography
     gnupg
     cryptsetup   
-
-    #Secure
-    firejail 
-
+ 
     # Editors
-    vim
+    micro
     
     # For USB devices
     ntfs3g
     
     # Terminal
-    termite
-
-    # Desctop
-    rofi
+    #alacritty
+    
   ];
 
   systemd.services.foo = {
