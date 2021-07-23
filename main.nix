@@ -5,7 +5,6 @@ let
 in
 {
   imports = [
-    #<nixpkgs/nixos/modules/profiles/hardened.nix>
     ./x.nix
   ];
  
@@ -15,23 +14,38 @@ in
   
   system.autoUpgrade.enable = false;
 
+  time.timeZone = "Europe/Greenwich";
+
+  networking.hostName = "default";
+
+  sound.enable = true;
+  hardware.pulseaudio.enable = true;
+
   users.users.admin = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ];
+    extraGroups = [ "wheel" "audio" "sound" "video" "networkmanager" "input" "tty" ];
     home = "/home/admin";
     createHome = true;
     useDefaultShell = true;
   };
 
+  # Enable nix store optimisation
+  nix.autoOptimiseStore = true;
+
   # Enable zram swap
   zramSwap.enable = true;
   zramSwap.priority = 10;
-  zramSwap.algorithm = "lzo";
+  zramSwap.algorithm = "zstd";
   zramSwap.numDevices = 1;
   zramSwap.swapDevices = 1;
-  zramSwap.memoryPercent = 40;
+  zramSwap.memoryPercent = 50;
+
+  # Enable KSM
+  hardware.ksm.enable = true;
   
   boot.kernelPackages = pkgs.linuxPackages_latest_hardened;
+
+  boot.cleanTmpDir = true;
 
   networking.enableIPv6 = false;
   networking.dhcpcd.extraConfig = "\nnoipv6rs \nnoipv6";
@@ -45,7 +59,20 @@ in
     alias rf='rm -rf'
     alias la='ls -a'
     alias s='sudo'
+    alias qr='qrencode -t UTF8 -o -'
   '';
+
+  services.searx.enable = true;
+  services.searx.settings = { 
+    general.debug = false;
+    general.instance_name = "Searx";
+    server.port = 8888;
+    server.bind_address = "127.0.0.1";
+    server.secret_key = "SEARX_SECRET_KEY";
+    search.autocomplete = "duckduckgo";
+    search.language = "en-US";
+  };
+  #services.searx.settingsFile = builtins.toFile "settings.yml" (import ./programconfigs/searx.nix).asYaml;
 
   environment.systemPackages = with pkgs; [
     # Test unstable chanel
@@ -55,18 +82,20 @@ in
     git
     wget
     htop
-    tmux
     openssh
     tree
-    mc
     links2
     ping
-    
+    neofetch
+
+    # File manager
+    lf
+
     # Cryptography
     gnupg
     cryptsetup   
 
-    #Secure
+    # Secure
     firejail 
 
     # Editors
@@ -77,10 +106,37 @@ in
     
     # Terminal
     termite
+    #alacritty
 
     # Desctop
     rofi
+
+    # Web
+    firefox
+    ipfs
+    
+    # Audio
+    ncmpcpp
+    
+    # Console tools
+    qrencode
   ];
+
+  #services.ipfs = {
+  #  enable = true;
+  #};
+
+  services.mpd.enable = true;
+  services.mpd.extraConfig = ''
+    audio_output {
+      type "pulse"
+      name "Pulseaudio"
+    }
+  '';
+
+  programs = {
+    ssh.askPassword = "";
+  };
 
   systemd.services.foo = {
     script = ''
