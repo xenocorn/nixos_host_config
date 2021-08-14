@@ -1,0 +1,17 @@
+{
+    "*": {
+        "autosave": 1
+    },
+    "*.nix": {
+        "tabsize": 2
+    },
+    "colorscheme" : "solarized",
+    "colorcolumn": 100,
+    "diffgutter": true,
+    "infobar": false,
+    "mkparents": true,
+    "savecursor": true,
+    "tabstospaces": true,
+    "autoclose": true,
+    "diff": true
+}
